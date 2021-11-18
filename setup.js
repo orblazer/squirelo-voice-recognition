@@ -13,6 +13,12 @@
  * @param {number} [timeout=30] The timeout in seconds between 2 call of {@link onMatch}
  */
 function setup(filter, onMatch, timeout = 30) {
+  // Check compatibility
+  if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
+    document.body.innerHTML = `<h1 style="color:red">Merci d'utiliser un navigateur chromium !`
+    throw new Error('The browser is not an chromium browser !')
+  }
+
   // Bind elements
   const stateElem = document.getElementById('state')
   const matchedCountElem = document.getElementById('matched-count')
@@ -40,7 +46,7 @@ function setup(filter, onMatch, timeout = 30) {
   })
 
   // Fill filter
-  filter.forEach(entry => {
+  filter.forEach((entry) => {
     filterElem.insertAdjacentHTML('beforeend', `<li>${entry}</li>`)
   })
 
@@ -77,5 +83,5 @@ function setup(filter, onMatch, timeout = 30) {
 }
 
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
 }
