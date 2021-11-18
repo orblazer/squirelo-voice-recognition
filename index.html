@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Squirelo - tic de langage</title>
+    <script src="./GrammarDetector.js"></script>
+    <script src="./setip.js"></script>
+    <script src="./index.js"></script>
+
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+  </head>
+  <body>
+    <h1>Reconnaissance vocal</h1>
+    <button id="action" type="button" style="font-size: large">
+      Changer d'état (<span id="state" style="color: red">Désactivé</span>)
+    </button>
+
+    <p>Détection des mots (1 ligne = 1 correspondence) :</p>
+    <ul id="filter"></ul>
+
+    <hr />
+
+    <h3>Phrase avec tic de langage (<span id="matched-count">0</span>) :</h3>
+    <ol id="matched-sentence"></ol>
+  </body>
+</html>
