@@ -57,7 +57,7 @@ class GrammarDetector extends EventTarget {
     }
     this[activeSym] = true
 
-    this[recognitionSym] = new webkitSpeechRecognition()
+    this[recognitionSym] = new (window.SpeechRecognition || window.webkitSpeechRecognition)()
 
     // Bind options
     this[recognitionSym].continuous = this._options.continuous
