@@ -2,6 +2,8 @@
 
 ## Setup
 
-1. Clone this repo
-2. Configure and make your stuff in `index.js`
-3. Open the file `index.html` in chromium browser and start record
+1. Download last release
+2. Extract the downloaded file
+3. (*optional*) Configure and make your stuff in `static/index.js`
+4. Run `squirelo-voice-recognition.exe`  (*__note__: you can change the port, eg. `--listen-addr :5000`*)
+5. Go to `http://localhost:5000`
