@@ -8,7 +8,7 @@ const filter = ['bonjour', 'salut']
  * The timeout in seconds between 2 call of {@link onMatch}
  * @type {number}
  */
-const timeout = 30
+const timeout = 10
 
 /**
  * The function called when {@link matchSentences} is matched (this is not fired if is in timeout or is in same sentence)
