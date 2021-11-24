@@ -11,6 +11,7 @@
 
 const activeSym = Symbol('active')
 const recognitionSym = Symbol('recognition')
+const noActivityTimeoutSym = Symbol('noActivityTimeout')
 
 class GrammarDetector extends EventTarget {
   /**
@@ -99,9 +100,14 @@ class GrammarDetector extends EventTarget {
 
     this[activeSym] = false
     this[recognitionSym].abort()
+    clearTimeout(this[noActivityTimeoutSym])
   }
 
   _onResult({results}) {
+    // Avoid staying blocked if talking a lot and S2T connection lost
+    clearTimeout(this[noActivityTimeoutSym])
+    this[noActivityTimeoutSym] = setTimeout(() => this[recognitionSym].stop(), 2000)
+
     // Find transcript
     const result = results[results.length - 1]
     let transcript = result[0].transcript
