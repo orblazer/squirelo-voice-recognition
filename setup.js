@@ -3,6 +3,7 @@
  *
  * @callback OnMatchSentence
  * @param {string} sentence The matched sentence
+ * @param {boolean} isFinal The sentence is final
  * @returns {void}
  */
 
@@ -21,12 +22,16 @@ function setup(filter, onMatch, timeout = 30) {
 
   // Bind elements
   const stateElem = document.getElementById('state')
+  const currSentenceElem = document.getElementById('currentSentence')
   const matchedCountElem = document.getElementById('matched-count')
   const matchedSentenceElem = document.getElementById('matched-sentence')
   const filterElem = document.getElementById('filter')
+  const totalElem = document.getElementById('total')
 
   // Declare variables
+  const numberFormat = new Intl.NumberFormat()
   let matchedSentence = 0
+  let total = 0
   let lastRun = 0
 
   const matchRegex = new RegExp(`(${filter.map((entry) => escapeRegExp(entry)).join('|')})`, 'gi')
@@ -61,15 +66,23 @@ function setup(filter, onMatch, timeout = 30) {
   })
   recognition.addEventListener('error', console.error)
   recognition.addEventListener('sentence', ({ detail }) => {
-    if (!detail.matched) {
-      return
-    }
+    if (detail.isFinal) {
+      // Reset sentence
+      currSentenceElem.innerHTML = ''
 
-    matchedCountElem.innerHTML = ++matchedSentence
-    matchedSentenceElem.insertAdjacentHTML(
-      'afterbegin',
-      `<li>${detail.value.replace(matchRegex, '<mark>$&</mark>')}</li>`
-    )
+      // Skip if doesn't match
+      if (!detail.matched) {
+        return
+      }
+
+      matchedCountElem.innerHTML = (++matchedSentence).toString()
+      matchedSentenceElem.insertAdjacentHTML(
+        'afterbegin',
+        `<li>${detail.value.replace(matchRegex, '<mark>$&</mark>')}</li>`
+      )
+    } else {
+      currSentenceElem.innerHTML = detail.value.replace(matchRegex, '<mark>$&</mark>')
+    }
   })
 
   // Bind recognition event
@@ -77,7 +90,9 @@ function setup(filter, onMatch, timeout = 30) {
     const now = Date.now()
     if ((now - lastRun) / 1000 >= timeout) {
       lastRun = now
-      onMatch(detail.value)
+      onMatch(detail.value, detail.isFinal)
+
+      totalElem.innerHTML = numberFormat.format(++total)
     }
   })
 }

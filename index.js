@@ -13,8 +13,9 @@ const timeout = 30
 /**
  * The function called when {@link matchSentences} is matched (this is not fired if is in timeout or is in same sentence)
  * @param {string} sentence The matched sentence
+ * @param {boolean} isFinal The sentence is final
  */
-function onMatch(sentence) {}
+function onMatch(sentence, isFinal) {}
 
 /**
  * DONT NEED TO TOUCH BELLOW !

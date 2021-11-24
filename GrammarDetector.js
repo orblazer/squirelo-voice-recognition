@@ -55,6 +55,7 @@ class GrammarDetector extends EventTarget {
     if (this[activeSym]) {
       return
     }
+
     this[activeSym] = true
 
     this[recognitionSym] = new (window.SpeechRecognition || window.webkitSpeechRecognition)()
@@ -100,85 +101,27 @@ class GrammarDetector extends EventTarget {
     this[recognitionSym].abort()
   }
 
-  _onResult(event) {
-    // Find last approved sentence
-    let result, isFinal
-    if (event.results.length > 1) {
-      for (let i = event.results.length - 1; i >= 0; i--) {
-        result = event.results[i]
-
-        if (result[0].confidence >= this._options.confidence) {
-          this._currentSentence.value = result[0].transcript.trim()
-          isFinal = result.isFinal
-          break
-        }
-      }
-    } else {
-      result = event.results[0]
-
-      this._currentSentence.value = result[0].transcript.trim()
-      isFinal = result.isFinal
+  _onResult({results}) {
+    // Find transcript
+    const result = results[results.length - 1]
+    let transcript = result[0].transcript
+    if (results.length > 1) {
+      transcript = results[results.length - 2][0].transcript + transcript
     }
 
-    // Test sentence
-    if (isFinal) {
-      // Skip spam sentence
-      if (similarity(this._lastSentence.value, this._currentSentence.value) > this._options.sameSentenceTolerance) {
-        return
-      }
 
-      this._matchCurrentSentence()
-      this.dispatchEvent(new CustomEvent('sentence', { detail: this._currentSentence }))
-
-      // Reset when is new sentence
-      this._lastSentence = this._currentSentence
-      this._currentSentence = { value: '', matched: false }
+    const detail = {
+      value: transcript,
+      matched: this._options.regex.test(transcript),
+      isFinal: result.isFinal
     }
-    else {
-      this._matchCurrentSentence()
-    }
-  }
 
-  _matchCurrentSentence() {
-    if (!this._currentSentence.matched && this._options.regex.test(this._currentSentence.value)) {
-      this._currentSentence.matched = true
-      this.dispatchEvent(new CustomEvent('match', { detail: this._currentSentence }))
+    // Dispatch match event
+    if (detail.matched) {
+      this.dispatchEvent(new CustomEvent('match', {detail }))
     }
-  }
-}
 
-function similarity(s1, s2) {
-  var longer = s1
-  var shorter = s2
-  if (s1.length < s2.length) {
-    longer = s2
-    shorter = s1
+    // Dispatch event
+    this.dispatchEvent(new CustomEvent('sentence', { detail }))
   }
-  var longerLength = longer.length
-  if (longerLength == 0) {
-    return 1.0
-  }
-  return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength)
-}
-function editDistance(s1, s2) {
-  s1 = s1.toLowerCase()
-  s2 = s2.toLowerCase()
-
-  var costs = new Array()
-  for (var i = 0; i <= s1.length; i++) {
-    var lastValue = i
-    for (var j = 0; j <= s2.length; j++) {
-      if (i == 0) costs[j] = j
-      else {
-        if (j > 0) {
-          var newValue = costs[j - 1]
-          if (s1.charAt(i - 1) != s2.charAt(j - 1)) newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1
-          costs[j - 1] = lastValue
-          lastValue = newValue
-        }
-      }
-    }
-    if (i > 0) costs[s2.length] = lastValue
-  }
-  return costs[s2.length]
 }
